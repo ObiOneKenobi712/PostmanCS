@@ -23,35 +23,33 @@ pm.test("Response body is not empty", function () {
 });
 
 // 5. WALIDACJA JSON SCHEMA  
-// Schema sprawdza:  
 // - Czy response jest obiektem (type: "object")  
 // - Czy wszystkie wymagane pola są obecne (required: [...])  
 // - Czy każde pole ma poprawny typ danych (properties: {...})  
 // - Czy NIE MA dodatkowych pól (additionalProperties: false)  
-// To jest SZYBKI test który w jednym kroku weryfikuje całą strukturę odpowiedzi
   
   const schema = {  
   type: "object",  // Response MUSI być obiektem JSON  
-  required: ["zupa", "zupaid", "danie", "danieid", "nameNo", "number"],  // Te pola MUSZĄ istnieć  
+  required: ["zupa", "zupaid", "danie", "danieid", "nameNo", "number"],    
   additionalProperties: false,  // BLOKUJE dodatkowe, nieoczekiwane pola  
   properties: {  
   zupa: {  
-  type: "string"  // zupa MUSI być stringiem  
+  type: "string"  
   },  
   zupaid: {  
-  type: "integer"  // zupaid MUSI być liczbą całkowitą  
+  type: "integer"    
   },  
   danie: {  
-  type: "string"  // danie MUSI być stringiem  
+  type: "string"    
   },  
   danieid: {  
-  type: "integer"  // danieid MUSI być liczbą całkowitą  
+  type: "integer"   
   },  
   nameNo: {  
-  type: "integer"  // nameNo MUSI być liczbą całkowitą  
+  type: "integer"    
   },  
   number: {  
-  type: "integer"  // number MUSI być liczbą całkowitą  
+  type: "integer" 
   }  
   }  
   };
@@ -61,15 +59,13 @@ pm.test("Response body is not empty", function () {
  });
 
 // 6. PARSOWANIE RESPONSE BODY  
-// Ten test sprawdza czy response da się sparsować jako JSON  
+// czy response da się sparsować jako JSON  
 // Jeśli server zwróci 
-// ✅ { "zupa": "Rosół" } - OK, to jest poprawny JSON  
-// ❌ { zupa: "Rosół" - FAIL, brak zamykającego nawiasu  
-// ❌ <html>Error</html> - FAIL, to HTML nie JSON  
+// ✅ { "zupa": "xxxx" } - OK, to jest poprawny JSON  
 // ❌ Internal Server Error - FAIL, to plain text  
 // ❌ undefined - FAIL, pusty response  
 //   
-// Ten test musi przejść PRZED wszystkimi innymi testami które używają jsonData!
+// test PRZED wszystkimi innymi testami które używają jsonData
   
   let jsonData;  
  try {  
@@ -90,7 +86,7 @@ pm.test("Response body is not empty", function () {
 
 
 // Schema sprawdza tylko TYP, nie WARTOŚĆ  
-// Ten test sprawdza czy nazwa ma sens   
+// Ten test sprawdza czy wartość ma sens   
 pm.test("Field 'zupa' is not empty", function () {  
 pm.expect(jsonData.zupa).to.not.be.empty;  
 });
@@ -100,7 +96,7 @@ pm.expect(jsonData.zupa).to.not.be.empty;
   pm.expect(jsonData.zupa.length).to.be.at.most(100);  
   });
   
-  // Sprawdzenie pola 'zupaid'  
+  // Sprawdzenie pola  
   pm.test("Field 'zupaid' exists and is an integer", function () {  
   pm.expect(jsonData).to.have.property('zupaid');  
   pm.expect(jsonData.zupaid).to.be.a('number');  
@@ -111,7 +107,7 @@ pm.expect(jsonData.zupa).to.not.be.empty;
   pm.expect(jsonData.zupaid).to.be.above(0);  
   });
   
-  // Sprawdzenie pola 'danie'  
+  //   
   pm.test("Field 'danie' exists and is a string", function () {  
   pm.expect(jsonData).to.have.property('danie');  
   pm.expect(jsonData.danie).to.be.a('string');  
@@ -126,7 +122,7 @@ pm.expect(jsonData.zupa).to.not.be.empty;
   pm.expect(jsonData.danie.length).to.be.at.most(100);  
   });
   
-  // Sprawdzenie pola 'danieid'  
+  // Sprawdzenie pola
   pm.test("Field 'danieid' exists and is an integer", function () {  
   pm.expect(jsonData).to.have.property('danieid');  
   pm.expect(jsonData.danieid).to.be.a('number');  
@@ -137,7 +133,7 @@ pm.expect(jsonData.zupa).to.not.be.empty;
   pm.expect(jsonData.danieid).to.be.above(0);  
   });
   
-  // Sprawdzenie pola 'nameNo'  
+  // Sprawdzenie pola
   pm.test("Field 'nameNo' exists and is an integer", function () {  
   pm.expect(jsonData).to.have.property('nameNo');  
   pm.expect(jsonData.nameNo).to.be.a('number');  
@@ -148,7 +144,7 @@ pm.expect(jsonData.zupa).to.not.be.empty;
   pm.expect(jsonData.nameNo).to.be.above(0);  
   });
   
-  // Sprawdzenie pola 'number'  
+  // Sprawdzenie pola 
   pm.test("Field 'number' exists and is an integer", function () {  
   pm.expect(jsonData).to.have.property('number');  
   pm.expect(jsonData.number).to.be.a('number');  
@@ -165,9 +161,7 @@ pm.expect(jsonData.zupa).to.not.be.empty;
   });
   
   // 9. SPRAWDZENIE, ŻE NIE MA DODATKOWYCH NIEOCZEKIWANYCH PÓL  
-  // UWAGA: Ten test jest REDUNDANTNY jeśli masz "additionalProperties: false" w schema  
-  // Możesz go usunąć jeśli schema ma tę opcję włączoną  
-  // Zostawiam go jako backup dla starszych wersji JSON Schema validator  
+ 
   pm.test("Response has only expected fields", function () {  
   const expectedFields = ["zupa", "zupaid", "danie", "danieid", "nameNo", "number"];  
   const actualFields = Object.keys(jsonData);
@@ -188,15 +182,15 @@ pm.expect(jsonData.zupa).to.not.be.empty;
   pm.expect(jsonData.danie).to.not.match(xssPatterns);  
   });
   
-  // 11. ZAPISANIE DO ZMIENNYCH ŚRODOWISKOWYCH (jeśli potrzebujesz w kolejnych requestach)  
+  // 11. ZAPISANIE DO ZMIENNYCH ŚRODOWISKOWYCH  
   pm.test("Save response data to environment", function () {  
   pm.environment.set("last_zupaid", jsonData.zupaid);  
   pm.environment.set("last_danieid", jsonData.danieid);  
   pm.environment.set("last_nameNo", jsonData.nameNo);  
   });
   
-  // 12. SPRAWDZENIE UNIQUE CONSTRAINTS (jeśli masz kolekcję danych)  
-  // Przykład: jeśli pobieras listę obiektów  
+  // 12. SPRAWDZENIE UNIQUE CONSTRAINTS  
+  // listę obiektów  
   // pm.test("All IDs are unique", function () {  
   //     const ids = jsonData.map(item => item.zupaid);  
   //     const uniqueIds = [...new Set(ids)];  
@@ -207,13 +201,6 @@ pm.expect(jsonData.zupa).to.not.be.empty;
   console.log("Response Data:", JSON.stringify(jsonData, null, 2));  
   console.log("Response Time:", pm.response.responseTime, "ms");
   
-  // 14. DODATKOWE SPRAWDZENIE - ENCODING  
-  pm.test("Response encoding is correct (UTF-8)", function () {  
-  // Sprawdzenie czy polskie znaki są poprawnie zakodowane  
-  const polishChars = /[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/;  
-  if (polishChars.test(jsonData.zupa) || polishChars.test(jsonData.danie)) {  
-  pm.expect(pm.response.headers.get("Content-Type")).to.include("charset=utf-8");    
-  });
   
   // 15. ASSERTIONS DLA GRANICZNYCH WARTOŚCI  
   pm.test("Integer fields are within reasonable bounds", function () {  
